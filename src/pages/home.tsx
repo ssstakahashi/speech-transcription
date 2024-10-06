@@ -6,6 +6,8 @@ import { useAtom } from "jotai";
 import MicIcon from "@mui/icons-material/Mic";
 import BlockIcon from "@mui/icons-material/Block";
 
+const url = import.meta.env.VITE_API_URL as string;
+
 const AudioRecorder = () => {
   // 録音中かどうかの状態を管理する
   const [isRecording, setIsRecording] = useState(false);
@@ -61,10 +63,8 @@ const AudioRecorder = () => {
 
       try {
         // サーバーに音声データを送信する
-        const response = await axios.post("http://localhost:3004/api/v1/transcription", formData);
-        // const response = await axios.post("http://localhost:3004/api/v1/transcription/conversation", formData);
+        const response = await axios.post(`${url}/api/v1/transcription`, formData);
         // 音声認識結果を状態に保存する
-        // setResultText([...resultText, ...response.data]);
         setResultText([...resultText, response.data]);
       } catch (error) {
         console.error("Upload failed:", error);

@@ -1,7 +1,5 @@
 import AudioRecorder from "./pages/home";
 
-function App() {
+export default function App() {
   return <AudioRecorder />;
 }
-
-export default App;

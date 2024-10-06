@@ -10,7 +10,7 @@ const AudioRecorder = () => {
   // 録音中かどうかの状態を管理する
   const [isRecording, setIsRecording] = useState(false);
   // 録音した音声のURLを管理する。今回は音声データを再生しないので、audioURLは不使用。
-  const [audioURL, setAudioURL] = useState("");
+  const [, setAudioURL] = useState("");
   // MediaRecorderの参照を保持する
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   // 録音した音声データのチャンクを保持する
@@ -123,7 +123,7 @@ const AudioRecorder = () => {
         <Box>
           <Typography>音声認識結果</Typography>
           <Typography gutterBottom>ここに音声認識の結果が表示されます。</Typography>
-          {resultText.map((x: RecordType, index: number) => (
+          {resultText.map((x: RecordType) => (
             <Typography key={x?.recordId} component={"div"} gutterBottom>
               <div>{x?.createAt}</div>
               <div>{x?.recordText}</div>

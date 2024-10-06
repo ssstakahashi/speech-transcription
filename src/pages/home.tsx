@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "redaxios";
-import { Box, Button, Typography } from "@mui/joy";
+import { Box, Button, IconButton, Typography } from "@mui/joy";
 import { RecordType, resultTextAtom } from "../store/atom_record";
 import { useAtom } from "jotai";
 import MicIcon from "@mui/icons-material/Mic";
 import BlockIcon from "@mui/icons-material/Block";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const url = import.meta.env.VITE_API_URL as string;
 
@@ -85,6 +86,11 @@ const AudioRecorder = () => {
       setIsRecording(false);
     }
   };
+  // 録音データを削除する関数
+  const deleteRecord = (recordId: string) => {
+    // 指定されたrecordIdと一致しない録音データのみを残す
+    setResultText(resultText.filter((x) => x.recordId !== recordId));
+  };
 
   return (
     <Box display="flex" justifyContent="center">
@@ -124,10 +130,20 @@ const AudioRecorder = () => {
           <Typography>音声認識結果</Typography>
           <Typography gutterBottom>ここに音声認識の結果が表示されます。</Typography>
           {resultText.map((x: RecordType) => (
-            <Typography key={x?.recordId} component={"div"} gutterBottom>
-              <div>{x?.createAt}</div>
-              <div>{x?.recordText}</div>
-            </Typography>
+            <Box key={x?.recordId} component={"div"} mb={1}>
+              <Box display="flex" alignItems="center">
+                <Typography level={"body-xs"} component={"div"}>
+                  {x?.createAt}
+                </Typography>
+                <IconButton>
+                  <ClearIcon fontSize="small" onClick={() => deleteRecord(x.recordId)} />
+                </IconButton>
+              </Box>
+
+              <Typography level={"body-sm"} component={"div"}>
+                {x?.recordText}
+              </Typography>
+            </Box>
           ))}
         </Box>
       </Box>

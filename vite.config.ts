@@ -6,20 +6,20 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['st_transcription_opacity1.png', 'st_transcription_opacity0.png'],
       manifest: {
-        name: 'My Awesome App',
-        short_name: 'MyApp',
-        description: 'My Awesome App description',
-        theme_color: '#ffffff',
+        name: 'MIERU 文字起こし',
+        short_name: 'MIERU 文字起こし',
+        description: '音声を文字に起こすアプリ',
+        theme_color: '#004aad',
         icons: [
           {
-            src: 'src/assets/microphone.tsx',
+            src: 'src/assets/st_transcription_opacity1.png',
             sizes: '192x192',
             type: 'image/svg'
           },
           {
-            src: 'src/assets/microphone.tsx',
+            src: 'src/assets/st_transcription_opacity1.png',
             sizes: '512x512',
             type: 'image/svg'
           }

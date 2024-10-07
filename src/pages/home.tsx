@@ -21,7 +21,7 @@ const AudioRecorder = () => {
   const audioChunksRef = useRef<Blob[]>([]);
   // 音声認識結果の状態を管理する
   const [resultText, setResultText] = useAtom(resultTextAtom);
-  const [result, setResult] = useState<number>(0);
+
   // 録音時間を管理する
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,31 +52,7 @@ const AudioRecorder = () => {
     mediaRecorderRef.current.ondataavailable = (event) => {
       audioChunksRef.current.push(event.data);
     };
-    // 録音が停止したときの処理
-    mediaRecorderRef.current.onstop = async () => {
-      // 録音データをBlobに変換する
-      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/ogg; codecs=opus" });
-      // BlobからURLを生成する
-      const audioUrl = URL.createObjectURL(audioBlob);
-      // 生成したURLを状態に保存する
-      setAudioURL(audioUrl);
-      // チャンクをリセットする
-      audioChunksRef.current = [];
 
-      // サーバーに音声データをアップロードする
-      const formData = new FormData();
-      formData.append("file", audioBlob, "recording.ogg");
-
-      try {
-        // サーバーに音声データを送信する
-        const response = await axios.post(`${url}/api/v1/transcription`, formData);
-        // 音声認識結果を状態に保存する
-        setResultText([...resultText, { ...response.data, recordingTime: result }]);
-        setRecordingTime(0);
-      } catch (error) {
-        console.error("Upload failed:", error);
-      }
-    };
     // タイマーを開始する
     timerRef.current = setInterval(() => {
       setRecordingTime((prevTime) => prevTime + 1);
@@ -97,10 +73,36 @@ const AudioRecorder = () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
-        setResult(recordingTime);
       }
       // 録音中の状態を解除する
       setIsRecording(false);
+
+      // 録音が停止したときの処理
+      mediaRecorderRef.current.onstop = async () => {
+        console.log("stop");
+        // 録音データをBlobに変換する
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/ogg; codecs=opus" });
+        // BlobからURLを生成する
+        const audioUrl = URL.createObjectURL(audioBlob);
+        // 生成したURLを状態に保存する
+        setAudioURL(audioUrl);
+        // チャンクをリセットする
+        audioChunksRef.current = [];
+
+        // サーバーに音声データをアップロードする
+        const formData = new FormData();
+        formData.append("file", audioBlob, "recording.ogg");
+
+        try {
+          // サーバーに音声データを送信する
+          const response = await axios.post(`${url}/api/v1/transcription`, formData);
+          // 音声認識結果を状態に保存する
+          setResultText([...resultText, { ...response.data, recordingTime: recordingTime }]);
+          setRecordingTime(0);
+        } catch (error) {
+          console.error("Upload failed:", error);
+        }
+      };
     }
   };
 

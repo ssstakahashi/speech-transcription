@@ -6,6 +6,7 @@ import { useAtom } from "jotai";
 import MicIcon from "@mui/icons-material/Mic";
 import BlockIcon from "@mui/icons-material/Block";
 import ClearIcon from "@mui/icons-material/Clear";
+import AvTimerIcon from "@mui/icons-material/AvTimer";
 
 const url = import.meta.env.VITE_API_URL as string;
 
@@ -20,6 +21,10 @@ const AudioRecorder = () => {
   const audioChunksRef = useRef<Blob[]>([]);
   // 音声認識結果の状態を管理する
   const [resultText, setResultText] = useAtom(resultTextAtom);
+  const [result, setResult] = useState<number>(0);
+  // 録音時間を管理する
+  const [recordingTime, setRecordingTime] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const initialFunction = async () => {
@@ -66,11 +71,16 @@ const AudioRecorder = () => {
         // サーバーに音声データを送信する
         const response = await axios.post(`${url}/api/v1/transcription`, formData);
         // 音声認識結果を状態に保存する
-        setResultText([...resultText, response.data]);
+        setResultText([...resultText, { ...response.data, recordingTime: result }]);
+        setRecordingTime(0);
       } catch (error) {
         console.error("Upload failed:", error);
       }
     };
+    // タイマーを開始する
+    timerRef.current = setInterval(() => {
+      setRecordingTime((prevTime) => prevTime + 1);
+    }, 1000);
     // 録音を開始する
     mediaRecorderRef.current.start();
     // 録音中の状態に設定する
@@ -82,10 +92,18 @@ const AudioRecorder = () => {
     if (mediaRecorderRef.current) {
       // MediaRecorderが存在する場合に録音を停止する
       mediaRecorderRef.current.stop();
+      // タイマーをクリアする
+
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        setResult(recordingTime);
+      }
       // 録音中の状態を解除する
       setIsRecording(false);
     }
   };
+
   // 録音データを削除する関数
   const deleteRecord = (recordId: string) => {
     // 指定されたrecordIdと一致しない録音データのみを残す
@@ -124,16 +142,29 @@ const AudioRecorder = () => {
           </Box>
         </Box>
 
+        <Box display="flex" alignItems="center" justifyContent="center">
+          <AvTimerIcon fontSize="small" />
+          <Typography>{recordingTime} 秒</Typography>
+        </Box>
+
         {/* <Box sx={{ visibility: "none" }}>{<audio controls src={audioURL} />}</Box> */}
 
-        <Box>
+        <Box width={"100%"} display="flex" flexDirection="column" alignItems="flex-start">
           <Typography>音声認識結果</Typography>
           <Typography gutterBottom>ここに音声認識の結果が表示されます。</Typography>
           {resultText.map((x: RecordType) => (
-            <Box key={x?.recordId} component={"div"} mb={1}>
+            <Box
+              key={x?.recordId}
+              component={"div"}
+              mb={1}
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+            >
               <Box display="flex" alignItems="center">
                 <Typography level={"body-xs"} component={"div"}>
                   {x?.createAt}
+                  <span style={{ marginLeft: 12 }}>{x.recordingTime}</span>秒
                 </Typography>
                 <IconButton>
                   <ClearIcon fontSize="small" onClick={() => deleteRecord(x.recordId)} />

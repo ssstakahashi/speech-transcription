@@ -5,6 +5,7 @@ export type RecordType = {
     recordId: string
     role: string
     recordText: string
+    recordingTime: number
     createAt: string
 }
 

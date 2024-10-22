@@ -95,7 +95,11 @@ const AudioRecorder = () => {
 
         try {
           // サーバーに音声データを送信する
-          const response = await axios.post(`${url}/api/v1/transcription`, formData);
+          const response = await axios.post(`${url}/api/v1/transcription`, formData, {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_GEMINI_SERVER_API_KEY}`,
+            },
+          });
           // 音声認識結果を状態に保存する
           setResultText([...resultText, { ...response.data, recordingTime: recordingTime }]);
           setRecordingTime(0);

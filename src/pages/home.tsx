@@ -156,8 +156,8 @@ const AudioRecorder = () => {
         {/* <Box sx={{ visibility: "none" }}>{<audio controls src={audioURL} />}</Box> */}
 
         <Box width={"100%"} display="flex" flexDirection="column" alignItems="flex-start">
-          <Typography>音声認識結果</Typography>
-          <Typography gutterBottom>ここに音声認識の結果が表示されます。</Typography>
+          <Typography gutterBottom>音声認識結果</Typography>
+          {/* <Typography gutterBottom>ここに音声認識の結果が表示されます。</Typography> */}
           {resultText.map((x: RecordType) => (
             <Box
               key={x?.recordId}
